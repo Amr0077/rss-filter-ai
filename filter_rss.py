@@ -440,7 +440,21 @@ def process_feed(feed_config: dict, seen_links: set, sent_today: list, cache: di
             time.sleep(0.5)
             continue
 
-        # ── الخطوة 4: AI يقرر
+        # ── الخطوة 4: AI يقرر — لكن فقط إذا المقال يذكر بايرن
+        BAYERN_TERMS = [
+            "bayern", "münchen", "munich", "munchen", "munique",
+            "monachium", "münchen", "バイエルン", "바이에른", "бавари",
+            "ميونخ", "بايرن", "münih", "monaco"
+        ]
+        title_lower = title.lower()
+        is_about_bayern = any(t in title_lower for t in BAYERN_TERMS)
+
+        if not is_about_bayern:
+            print(f"    ⏭️ لا يذكر بايرن في العنوان — تخطي AI")
+            cache_set(cache, link, "no_match", real_url)
+            time.sleep(0.5)
+            continue
+
         print(f"    🤖 لا كلمة — AI يقيّم...")
         important, summary = ask_ai(title, article_text, sent_today + new_summaries)
         if important:
