@@ -210,9 +210,16 @@ def fetch_article(url: str) -> tuple:
             tag.decompose()
         text = soup.get_text(separator=" ", strip=True)
         text_lower = text.lower()
-        if len(text) < 300 or any(s in text_lower for s in PAYWALL_SIGNALS):
+
+        # Paywall = نص قصير جداً (أقل من 500 حرف) يحتوي كلمة اشتراك
+        # أو نص قصير جداً بدون أي محتوى حقيقي (أقل من 200 حرف)
+        is_short = len(text) < 500
+        has_paywall_signal = any(s in text_lower for s in PAYWALL_SIGNALS)
+
+        if len(text) < 200 or (is_short and has_paywall_signal):
             print(f"    🔒 Paywall ({len(text)} حرف)")
             return text, "paywall"
+
         print(f"    ✅ {len(text)} حرف")
         return text.lower(), "ok"
     except Exception as e:
