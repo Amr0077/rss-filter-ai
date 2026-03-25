@@ -26,6 +26,7 @@ jobs:
       - name: Run filter script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           PROXY_URL: ${{ secrets.PROXY_URL }}
         run: python filter_rss.py
 
