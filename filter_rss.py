@@ -413,12 +413,20 @@ def process_feed(feed_config: dict, seen_links: set, sent_today: list, cache: di
         article_text, status = fetch_article(real_url)
 
         if status == "paywall":
-            cache_set(cache, link, "paywall", real_url)
-            matched.append({
-                "title": title, "link": real_url,
-                "summary": rss_summary, "published": entry.get("published", ""),
-            })
-            new_summaries.append(title[:60])
+            # Paywall → أرسل فقط إذا يذكر بايرن في العنوان
+            BAYERN_TERMS = ["bayern", "münchen", "munich", "munchen", "munique",
+                "monachium", "münchen", "バイエルン", "바이에른", "бавари",
+                "ميونخ", "بايرن", "münih", "monaco"]
+            if any(t in title.lower() for t in BAYERN_TERMS):
+                cache_set(cache, link, "paywall", real_url)
+                matched.append({
+                    "title": title, "link": real_url,
+                    "summary": rss_summary, "published": entry.get("published", ""),
+                })
+                new_summaries.append(title[:60])
+            else:
+                cache_set(cache, link, "no_match", real_url)
+                print(f"    ⏭️ Paywall لكن لا يذكر بايرن — تخطي")
             time.sleep(0.5)
             continue
 
@@ -428,8 +436,14 @@ def process_feed(feed_config: dict, seen_links: set, sent_today: list, cache: di
             continue
 
         # ── الخطوة 3: تحقق من الكلمات في المحتوى
+        # لكن فقط إذا كان المقال يذكر بايرن في النص أيضاً
+        BAYERN_TERMS = ["bayern", "münchen", "munich", "munchen", "munique",
+            "monachium", "münchen", "バイエルン", "바이에른", "бавари",
+            "ميونخ", "بايرن", "münih", "monaco"]
+        article_mentions_bayern = any(t in article_text for t in BAYERN_TERMS)
+
         content_match, kw = matches(article_text, keywords)
-        if content_match:
+        if content_match and article_mentions_bayern:
             print(f"    ✅ كلمة في المحتوى: '{kw}'")
             cache_set(cache, link, "matched", real_url)
             matched.append({
@@ -437,6 +451,11 @@ def process_feed(feed_config: dict, seen_links: set, sent_today: list, cache: di
                 "summary": rss_summary, "published": entry.get("published", ""),
             })
             new_summaries.append(title[:60])
+            time.sleep(0.5)
+            continue
+        elif content_match and not article_mentions_bayern:
+            print(f"    ⏭️ كلمة '{kw}' موجودة لكن المقال لا يتحدث عن بايرن — تخطي")
+            cache_set(cache, link, "no_match", real_url)
             time.sleep(0.5)
             continue
 
