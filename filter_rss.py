@@ -7,6 +7,7 @@ import time
 import json
 import os
 from urllib.parse import urlparse, parse_qs, unquote
+from googlenewsdecoder import gnewsdecoder
 
 # ============================================================
 # ⚙️ الإعدادات - عدّل هنا فقط
@@ -111,24 +112,21 @@ RSS_FEEDS = [
 
 MAX_ARTICLES_TO_CHECK = 20
 OUTPUT_FILE = "filtered_feed.xml"
-SENT_TODAY_FILE = "sent_today.json"  # يحفظ ملخصات ما أُرسل اليوم
+SENT_TODAY_FILE = "sent_today.json"
 
-# Gemini API Key - يُقرأ من GitHub Secrets
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+PROXY_URL = os.environ.get("PROXY_URL", "")
 
 # ============================================================
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
-JINA_PREFIX = "https://r.jina.ai/"
 PAYWALL_SIGNALS = ["subscribe", "abonnieren", "premium", "paywall", "sign in to read", "register to read", "nur für abonnenten"]
 
 
 def load_sent_today() -> list:
-    """يحمّل ملخصات المقالات المرسلة اليوم"""
     try:
         if os.path.exists(SENT_TODAY_FILE):
             data = json.load(open(SENT_TODAY_FILE))
-            # إذا كان من يوم آخر نبدأ من جديد
             if data.get("date") == str(date.today()):
                 return data.get("summaries", [])
     except:
@@ -137,70 +135,50 @@ def load_sent_today() -> list:
 
 
 def save_sent_today(summaries: list):
-    """يحفظ ملخصات المقالات المرسلة اليوم"""
     try:
-        json.dump({"date": str(date.today()), "summaries": summaries}, open(SENT_TODAY_FILE, "w"), ensure_ascii=False)
+        json.dump({"date": str(date.today()), "summaries": summaries},
+                  open(SENT_TODAY_FILE, "w"), ensure_ascii=False)
     except:
         pass
 
 
-def extract_real_url(url: str) -> str:
+def decode_google_news_url(url: str) -> str:
+    """يفك تشفير رابط Google News باستخدام googlenewsdecoder"""
     try:
-        params = parse_qs(urlparse(url).query)
-        if "url" in params:
-            return unquote(params["url"][0])
-    except:
-        pass
+        proxy = PROXY_URL if PROXY_URL else None
+        result = gnewsdecoder(url, interval=1, proxy=proxy)
+        if result.get("status"):
+            decoded = result["decoded_url"]
+            print(f"    🔓 decoded: {decoded[:80]}...")
+            return decoded
+        else:
+            print(f"    ⚠️ decoder: {result.get('message', '')[:80]}")
+    except Exception as e:
+        print(f"    ⚠️ decoder error: {e}")
     return url
 
 
-def fetch_article_jina(google_url: str) -> tuple:
-    """
-    يستخدم Jina AI لفك رابط Google News وقراءة المحتوى
-    يرجع: (النص, الرابط الحقيقي, نوع المحتوى)
-    نوع المحتوى: 'ok' | 'paywall' | 'failed'
-    """
+def fetch_article(url: str, timeout: int = 15) -> tuple:
+    """يفتح الرابط الحقيقي ويرجع (النص, نوع المحتوى)"""
     try:
-        jina_url = JINA_PREFIX + google_url
-        r = requests.get(jina_url, headers=HEADERS, timeout=20)
+        r = requests.get(url, headers=HEADERS, timeout=timeout, allow_redirects=True)
         r.raise_for_status()
-
-        text = r.text
-        real_url = google_url
-
-        # Jina يضع الرابط الحقيقي في أول سطر
-        lines = text.strip().split("\n")
-        for line in lines[:5]:
-            if line.startswith("URL:"):
-                real_url = line.replace("URL:", "").strip()
-                break
+        soup = BeautifulSoup(r.text, "html.parser")
+        for tag in soup(["script", "style", "nav", "footer", "header", "aside"]):
+            tag.decompose()
+        text = soup.get_text(separator=" ", strip=True)
 
         # تحقق من Paywall
         text_lower = text.lower()
-        if len(text) < 500 or any(signal in text_lower for signal in PAYWALL_SIGNALS):
-            print(f"    🔒 Paywall مكتشف")
-            return text, real_url, "paywall"
+        if len(text) < 500 or any(s in text_lower for s in PAYWALL_SIGNALS):
+            print(f"    🔒 Paywall ({len(text)} حرف)")
+            return text, "paywall"
 
-        print(f"    ✅ قراءة ناجحة: {len(text)} حرف | {real_url[:60]}...")
-        return text.lower(), real_url, "ok"
-
+        print(f"    ✅ {len(text)} حرف")
+        return text.lower(), "ok"
     except Exception as e:
-        print(f"    ⚠️ فشل Jina: {e}")
-        # fallback: حاول مباشرة
-        try:
-            real_url = extract_real_url(google_url)
-            r = requests.get(real_url, headers=HEADERS, timeout=10, allow_redirects=True)
-            r.raise_for_status()
-            real_url = r.url
-            soup = BeautifulSoup(r.text, "html.parser")
-            for tag in soup(["script", "style", "nav", "footer", "header", "aside"]):
-                tag.decompose()
-            text = soup.get_text(separator=" ", strip=True)
-            print(f"    ✅ fallback ناجح: {len(text)} حرف")
-            return text.lower(), real_url, "ok"
-        except Exception as e2:
-            print(f"    ❌ فشل كلي: {e2}")
-            return "", google_url, "failed"
+        print(f"    ❌ فشل fetch: {e}")
+        return "", "failed"
 
 
 def matches(text: str, keywords: list) -> tuple:
@@ -212,21 +190,12 @@ def matches(text: str, keywords: list) -> tuple:
 
 
 def ask_gemini(title: str, content: str, sent_today: list) -> tuple:
-    """
-    يسأل Gemini إذا كان المقال يستحق الإرسال
-    يرجع: (True/False, السبب)
-    """
     if not GEMINI_API_KEY:
-        return False, "لا يوجد API key"
-
+        return False, ""
     try:
-        # ملخص ما أُرسل اليوم
         sent_context = ""
         if sent_today:
-            sent_context = f"""
-المقالات التي أُرسلت بالفعل اليوم (لتجنب التكرار):
-{chr(10).join(f'- {s}' for s in sent_today[-10:])}
-"""
+            sent_context = f"المقالات المرسلة اليوم:\n" + "\n".join(f"- {s}" for s in sent_today[-10:])
 
         prompt = f"""أنت محلل أخبار متخصص في نادي بايرن ميونخ.
 
@@ -236,14 +205,14 @@ def ask_gemini(title: str, content: str, sent_today: list) -> tuple:
 العنوان: {title}
 المحتوى: {content[:2000]}
 
-قيّم هذا المقال بناءً على المعايير التالية:
-1. هل يحتوي على معلومة حصرية أو مصدر موثوق؟
-2. هل يحتوي على معلومة جديدة لم تُذكر في المقالات السابقة اليوم؟
-3. هل يتعلق بموضوع مهم: انتقال، إصابة، تصريح رسمي، قرار إداري؟
+قيّم هذا المقال:
+1. هل يحتوي معلومة حصرية أو مصدر موثوق؟
+2. هل يحتوي معلومة جديدة لم تُذكر اليوم؟
+3. هل يتعلق بانتقال، إصابة، أو تصريح رسمي مهم؟
 4. إذا كان تصريحاً، هل هو مختلف عن التصريحات السابقة اليوم؟
 
-أجب بـ JSON فقط بهذا الشكل بدون أي نص إضافي:
-{{"important": true/false, "reason": "سبب قصير بجملة واحدة", "summary": "ملخص قصير جداً للمقال بـ 10 كلمات"}}"""
+أجب بـ JSON فقط بدون أي نص إضافي:
+{{"important": true/false, "reason": "سبب قصير", "summary": "ملخص 10 كلمات"}}"""
 
         response = requests.post(
             f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
@@ -251,20 +220,15 @@ def ask_gemini(title: str, content: str, sent_today: list) -> tuple:
             timeout=15,
         )
         response.raise_for_status()
-        data = response.json()
-        text = data["candidates"][0]["content"]["parts"][0]["text"]
-
-        # تنظيف الرد
+        text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
         text = text.strip().replace("```json", "").replace("```", "").strip()
         result = json.loads(text)
-
         important = result.get("important", False)
         reason = result.get("reason", "")
         summary = result.get("summary", title[:50])
-
-        print(f"    🤖 Gemini: {'✅ مهم' if important else '❌ غير مهم'} — {reason}")
+        print(f"    🤖 {'✅ مهم' if important else '❌ غير مهم'} — {reason}")
+        time.sleep(4)  # لتجنب 429
         return important, summary
-
     except Exception as e:
         print(f"    ⚠️ Gemini error: {e}")
         return False, ""
@@ -275,7 +239,7 @@ def build_rss_feed(articles: list) -> str:
     channel = ET.SubElement(rss, "channel")
     ET.SubElement(channel, "title").text = "Bayern Filtered Feed - AI Powered"
     ET.SubElement(channel, "link").text = "https://news.google.com"
-    ET.SubElement(channel, "description").text = "FC Bayern filtered news - Keywords + Gemini AI"
+    ET.SubElement(channel, "description").text = "FC Bayern - Keywords + Gemini AI"
     ET.SubElement(channel, "lastBuildDate").text = datetime.now(timezone.utc).strftime(
         "%a, %d %b %Y %H:%M:%S +0000"
     )
@@ -316,39 +280,38 @@ def process_feed(feed_config: dict, seen_links: set, sent_today: list) -> tuple:
 
         print(f"  [{i+1}] {title[:70]}...")
 
-        # ── الخطوة 1: تحقق من العنوان والوصف (بدون فتح الرابط)
+        # ── الخطوة 1: تحقق من العنوان والوصف
         quick_match, kw = matches(f"{title} {rss_summary}", keywords)
         if quick_match:
-            print(f"    ✅ كلمة مفتاح: '{kw}' — جاري فتح الرابط...")
-            _, real_url, status = fetch_article_jina(link)
-            if status == "failed":
-                real_url = link
+            print(f"    ✅ كلمة مفتاح في العنوان: '{kw}'")
+            real_url = decode_google_news_url(link)
             matched.append({
                 "title": title, "link": real_url,
                 "summary": rss_summary, "published": entry.get("published", ""),
             })
-            new_summaries.append(f"{title[:60]}")
-            time.sleep(0.5)
+            new_summaries.append(title[:60])
+            time.sleep(1)
             continue
 
-        # ── الخطوة 2: افتح المقال واقرأ المحتوى
-        article_text, real_url, status = fetch_article_jina(link)
+        # ── الخطوة 2: فك الرابط ثم افتح المقال
+        real_url = decode_google_news_url(link)
+        article_text, status = fetch_article(real_url)
 
-        # إذا Paywall → أرسل مباشرة
+        # Paywall → أرسل مباشرة
         if status == "paywall":
             print(f"    🔒 Paywall → يُرسل مباشرة")
             matched.append({
                 "title": title, "link": real_url,
                 "summary": rss_summary, "published": entry.get("published", ""),
             })
-            new_summaries.append(f"{title[:60]}")
-            time.sleep(0.5)
+            new_summaries.append(title[:60])
+            time.sleep(1)
             continue
 
-        # إذا فشل القراءة → تخطي
+        # فشل → تخطي
         if status == "failed" or not article_text:
             print(f"    ⚠️ فشل القراءة — تخطي")
-            time.sleep(0.5)
+            time.sleep(1)
             continue
 
         # ── الخطوة 3: تحقق من الكلمات في المحتوى
@@ -359,12 +322,12 @@ def process_feed(feed_config: dict, seen_links: set, sent_today: list) -> tuple:
                 "title": title, "link": real_url,
                 "summary": rss_summary, "published": entry.get("published", ""),
             })
-            new_summaries.append(f"{title[:60]}")
-            time.sleep(0.5)
+            new_summaries.append(title[:60])
+            time.sleep(1)
             continue
 
         # ── الخطوة 4: Gemini يقرر
-        print(f"    🤖 لا كلمة مفتاح — Gemini يقيّم...")
+        print(f"    🤖 لا كلمة — Gemini يقيّم...")
         important, summary = ask_gemini(title, article_text, sent_today + new_summaries)
         if important:
             matched.append({
@@ -381,6 +344,7 @@ def process_feed(feed_config: dict, seen_links: set, sent_today: list) -> tuple:
 def main():
     print(f"📡 عدد الـ Feeds: {len(RSS_FEEDS)}")
     print(f"🤖 Gemini: {'مفعّل ✅' if GEMINI_API_KEY else 'غير مفعّل ❌'}")
+    print(f"🔀 Proxy: {'مفعّل ✅' if PROXY_URL else 'غير مفعّل ❌'}")
 
     sent_today = load_sent_today()
     print(f"📋 مقالات اليوم السابقة: {len(sent_today)}")
@@ -396,12 +360,10 @@ def main():
 
     print(f"\n📊 النتيجة: {len(all_matched)} مقال مطابق")
 
-    # حفظ الـ feed
     xml_content = build_rss_feed(all_matched)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write(xml_content)
 
-    # تحديث ملخصات اليوم
     save_sent_today(sent_today + all_new_summaries)
 
     if all_matched:
