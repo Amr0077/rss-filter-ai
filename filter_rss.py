@@ -14,98 +14,98 @@ from googlenewsdecoder import gnewsdecoder
 # ============================================================
 
 RSS_FEEDS = [
-    # 🇩🇪 ألمانية
+    # 🇩🇪 ألمانية - نستخدم "FC Bayern" للألمانية لتجنب أخبار ولاية بايرن
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=de&gl=DE&ceid=DE:de",
+        "url": "https://news.google.com/rss/search?q=%22FC+Bayern%22+when:1h&hl=de&gl=DE&ceid=DE:de",
         "keywords": ["EXKLUSIV", "Interview", "Fakt ist", "Fest steht", "weiß", "Informationen", "klärt", "-Informationen"],
     },
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=de&gl=AT&ceid=AT:de",
+        "url": "https://news.google.com/rss/search?q=%22FC+Bayern%22+when:1h&hl=de&gl=AT&ceid=AT:de",
         "keywords": ["EXKLUSIV", "Interview", "Fakt ist", "Fest steht", "weiß", "Informationen", "klärt"],
     },
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=de&gl=CH&ceid=CH:de",
+        "url": "https://news.google.com/rss/search?q=%22FC+Bayern%22+when:1h&hl=de&gl=CH&ceid=CH:de",
         "keywords": ["EXKLUSIV", "Interview", "Fakt ist", "Fest steht", "weiß", "Informationen", "klärt"],
     },
-    # 🇬🇧🇺🇸 إنجليزية
+    # 🇬🇧🇺🇸 إنجليزية - "Bayern Munich" أكثر تحديداً
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=en-GB&gl=GB&ceid=GB:en",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+Munich%22+when:1h&hl=en-GB&gl=GB&ceid=GB:en",
         "keywords": ["exclusive", "EXCLUSIVE", "sources", "according to sources", "confirmed", "told", "interview", "reveals", "claims", "understands"],
     },
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=en-US&gl=US&ceid=US:en",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+Munich%22+when:1h&hl=en-US&gl=US&ceid=US:en",
         "keywords": ["exclusive", "EXCLUSIVE", "sources", "according to sources", "confirmed", "told", "interview", "reveals", "claims", "understands"],
     },
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=en-AU&gl=AU&ceid=AU:en",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+Munich%22+when:1h&hl=en-AU&gl=AU&ceid=AU:en",
         "keywords": ["exclusive", "sources", "confirmed", "interview", "reveals"],
     },
-    # 🇪🇸 إسبانية
+    # 🇪🇸 إسبانية - "Bayern" أو "Bayern Múnich"
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=es&gl=ES&ceid=ES:es",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+M%C3%BCnich%22+when:1h&hl=es&gl=ES&ceid=ES:es",
         "keywords": ["exclusiva", "EXCLUSIVA", "entrevista", "fuentes", "según fuentes", "confirma", "asegura", "revela", "desvela"],
     },
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=es-419&gl=MX&ceid=MX:es-419",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+M%C3%BCnich%22+when:1h&hl=es-419&gl=MX&ceid=MX:es-419",
         "keywords": ["exclusiva", "entrevista", "fuentes", "confirma", "revela"],
     },
     # 🇫🇷 فرنسية
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=fr&gl=FR&ceid=FR:fr",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+Munich%22+when:1h&hl=fr&gl=FR&ceid=FR:fr",
         "keywords": ["exclusif", "EXCLUSIF", "interview", "selon nos informations", "nos sources", "confirme", "révèle", "apprend"],
     },
     # 🇮🇹 إيطالية
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=it&gl=IT&ceid=IT:it",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+Monaco%22+when:1h&hl=it&gl=IT&ceid=IT:it",
         "keywords": ["esclusiva", "ESCLUSIVA", "intervista", "secondo fonti", "fonti", "conferma", "rivela", "apprende"],
     },
     # 🇦🇷 إسبانية - الأرجنتين
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=es-419&gl=AR&ceid=AR:es-419",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+M%C3%BCnich%22+when:1h&hl=es-419&gl=AR&ceid=AR:es-419",
         "keywords": ["exclusiva", "entrevista", "fuentes", "confirma", "revela", "desvela", "asegura"],
     },
     # 🇵🇹🇧🇷 برتغالية
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+de+Munique%22+when:1h&hl=pt-BR&gl=BR&ceid=BR:pt-419",
         "keywords": ["exclusivo", "EXCLUSIVO", "entrevista", "fontes", "segundo fontes", "confirma", "revela", "apurou"],
     },
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=pt-PT&gl=PT&ceid=PT:pt-150",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+Munich%22+when:1h&hl=pt-PT&gl=PT&ceid=PT:pt-150",
         "keywords": ["exclusivo", "entrevista", "fontes", "confirma", "revela"],
     },
     # 🇳🇱 هولندية
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=nl&gl=NL&ceid=NL:nl",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+M%C3%BCnchen%22+when:1h&hl=nl&gl=NL&ceid=NL:nl",
         "keywords": ["exclusief", "interview", "bronnen", "meldt", "bevestigt", "onthult"],
     },
     # 🇵🇱 بولندية
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=pl&gl=PL&ceid=PL:pl",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+Monachium%22+when:1h&hl=pl&gl=PL&ceid=PL:pl",
         "keywords": ["ekskluzywnie", "wywiad", "źródła", "potwierdza", "ujawnia", "donosi"],
     },
     # 🇹🇷 تركية
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=tr&gl=TR&ceid=TR:tr",
+        "url": "https://news.google.com/rss/search?q=%22Bayern+M%C3%BCnih%22+when:1h&hl=tr&gl=TR&ceid=TR:tr",
         "keywords": ["özel", "röportaj", "kaynaklar", "iddia", "açıkladı", "doğruladı"],
     },
     # 🇷🇺 روسية
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=ru&gl=RU&ceid=RU:ru",
+        "url": "https://news.google.com/rss/search?q=%22Бавария%22+when:1h&hl=ru&gl=RU&ceid=RU:ru",
         "keywords": ["эксклюзив", "интервью", "источники", "сообщает", "подтвердил", "раскрыл"],
     },
     # 🇯🇵 يابانية
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=ja&gl=JP&ceid=JP:ja",
+        "url": "https://news.google.com/rss/search?q=%22バイエルン%22+when:1h&hl=ja&gl=JP&ceid=JP:ja",
         "keywords": ["独占", "インタビュー", "情報", "明らかに", "確認"],
     },
     # 🇰🇷 كورية
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=ko&gl=KR&ceid=KR:ko",
+        "url": "https://news.google.com/rss/search?q=%22바이에른%22+when:1h&hl=ko&gl=KR&ceid=KR:ko",
         "keywords": ["단독", "인터뷰", "소식통", "확인", "공개"],
     },
     # 🇸🇦 عربية
     {
-        "url": "https://news.google.com/rss/search?q=Bayern+when:1h&hl=ar&gl=SA&ceid=SA:ar",
+        "url": "https://news.google.com/rss/search?q=%22بايرن+ميونخ%22+when:1h&hl=ar&gl=SA&ceid=SA:ar",
         "keywords": ["حصري", "مصادر", "كشف", "أكد", "مقابلة", "وفقاً لمصادر"],
     },
 ]
@@ -113,6 +113,8 @@ RSS_FEEDS = [
 MAX_ARTICLES_TO_CHECK = 20
 OUTPUT_FILE = "filtered_feed.xml"
 SENT_TODAY_FILE = "sent_today.json"
+CACHE_FILE = "cache.json"          # يحفظ الروابط التي قُرئت
+CACHE_TTL_HOURS = 24               # ينظف الـ cache بعد 24 ساعة
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
@@ -124,10 +126,49 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 PAYWALL_SIGNALS = ["subscribe", "abonnieren", "premium", "paywall", "sign in to read", "register to read", "nur für abonnenten"]
 
 
+# ══════════════════════════════════════════════
+# Cache Management
+# ══════════════════════════════════════════════
+
+def load_cache() -> dict:
+    """يحمّل الـ cache وينظف القديم منه"""
+    try:
+        if os.path.exists(CACHE_FILE):
+            data = json.load(open(CACHE_FILE, encoding="utf-8"))
+            now = datetime.now(timezone.utc).timestamp()
+            # احذف الروابط التي مضى عليها أكثر من CACHE_TTL_HOURS
+            cleaned = {k: v for k, v in data.items()
+                       if now - v.get("ts", 0) < CACHE_TTL_HOURS * 3600}
+            return cleaned
+    except:
+        pass
+    return {}
+
+
+def save_cache(cache: dict):
+    try:
+        json.dump(cache, open(CACHE_FILE, "w", encoding="utf-8"), ensure_ascii=False)
+    except:
+        pass
+
+
+def cache_set(cache: dict, link: str, result: str, real_url: str = ""):
+    """يحفظ نتيجة المقال في الـ cache"""
+    cache[link] = {
+        "result": result,       # 'matched' | 'no_match' | 'failed' | 'paywall'
+        "real_url": real_url,
+        "ts": datetime.now(timezone.utc).timestamp(),
+    }
+
+
+# ══════════════════════════════════════════════
+# Sent Today Management
+# ══════════════════════════════════════════════
+
 def load_sent_today() -> list:
     try:
         if os.path.exists(SENT_TODAY_FILE):
-            data = json.load(open(SENT_TODAY_FILE))
+            data = json.load(open(SENT_TODAY_FILE, encoding="utf-8"))
             if data.get("date") == str(date.today()):
                 return data.get("summaries", [])
     except:
@@ -138,49 +179,50 @@ def load_sent_today() -> list:
 def save_sent_today(summaries: list):
     try:
         json.dump({"date": str(date.today()), "summaries": summaries},
-                  open(SENT_TODAY_FILE, "w"), ensure_ascii=False)
+                  open(SENT_TODAY_FILE, "w", encoding="utf-8"), ensure_ascii=False)
     except:
         pass
 
 
+# ══════════════════════════════════════════════
+# URL Handling
+# ══════════════════════════════════════════════
+
 def decode_google_news_url(url: str) -> str:
-    """يفك تشفير رابط Google News باستخدام googlenewsdecoder"""
     try:
         proxy = PROXY_URL if PROXY_URL else None
         result = gnewsdecoder(url, interval=1, proxy=proxy)
         if result.get("status"):
-            decoded = result["decoded_url"]
-            print(f"    🔓 decoded: {decoded[:80]}...")
-            return decoded
-        else:
-            print(f"    ⚠️ decoder: {result.get('message', '')[:80]}")
+            return result["decoded_url"]
+        print(f"    ⚠️ decoder: {result.get('message', '')[:60]}")
     except Exception as e:
         print(f"    ⚠️ decoder error: {e}")
     return url
 
 
-def fetch_article(url: str, timeout: int = 15) -> tuple:
-    """يفتح الرابط الحقيقي ويرجع (النص, نوع المحتوى)"""
+def fetch_article(url: str) -> tuple:
+    """يرجع (النص, نوع المحتوى: ok|paywall|failed)"""
     try:
-        r = requests.get(url, headers=HEADERS, timeout=timeout, allow_redirects=True)
+        r = requests.get(url, headers=HEADERS, timeout=15, allow_redirects=True)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
         for tag in soup(["script", "style", "nav", "footer", "header", "aside"]):
             tag.decompose()
         text = soup.get_text(separator=" ", strip=True)
-
-        # تحقق من Paywall
         text_lower = text.lower()
-        if len(text) < 500 or any(s in text_lower for s in PAYWALL_SIGNALS):
+        if len(text) < 300 or any(s in text_lower for s in PAYWALL_SIGNALS):
             print(f"    🔒 Paywall ({len(text)} حرف)")
             return text, "paywall"
-
         print(f"    ✅ {len(text)} حرف")
         return text.lower(), "ok"
     except Exception as e:
-        print(f"    ❌ فشل fetch: {e}")
+        print(f"    ❌ {e}")
         return "", "failed"
 
+
+# ══════════════════════════════════════════════
+# Keyword Matching
+# ══════════════════════════════════════════════
 
 def matches(text: str, keywords: list) -> tuple:
     text_lower = text.lower()
@@ -190,9 +232,11 @@ def matches(text: str, keywords: list) -> tuple:
     return False, ""
 
 
-def ask_ai(title: str, content: str, sent_today: list) -> tuple:
-    """يسأل Groq أولاً، وإذا فشل يجرب Gemini كـ fallback"""
+# ══════════════════════════════════════════════
+# AI Evaluation
+# ══════════════════════════════════════════════
 
+def ask_ai(title: str, content: str, sent_today: list) -> tuple:
     sent_context = ""
     if sent_today:
         sent_context = "المقالات المرسلة اليوم:\n" + "\n".join(f"- {s}" for s in sent_today[-10:])
@@ -214,10 +258,10 @@ def ask_ai(title: str, content: str, sent_today: list) -> tuple:
 أجب بـ JSON فقط بدون أي نص إضافي:
 {{"important": true/false, "reason": "سبب قصير", "summary": "ملخص 10 كلمات"}}"""
 
-    # ── Groq أولاً
+    # Groq أولاً
     if GROQ_API_KEY:
         try:
-            response = requests.post(
+            r = requests.post(
                 "https://api.groq.com/openai/v1/chat/completions",
                 headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
                 json={
@@ -228,8 +272,8 @@ def ask_ai(title: str, content: str, sent_today: list) -> tuple:
                 },
                 timeout=15,
             )
-            response.raise_for_status()
-            text = response.json()["choices"][0]["message"]["content"]
+            r.raise_for_status()
+            text = r.json()["choices"][0]["message"]["content"]
             text = text.strip().replace("```json", "").replace("```", "").strip()
             result = json.loads(text)
             important = result.get("important", False)
@@ -239,18 +283,19 @@ def ask_ai(title: str, content: str, sent_today: list) -> tuple:
             time.sleep(2)
             return important, summary
         except Exception as e:
-            print(f"    ⚠️ Groq error: {e} — جاري تجربة Gemini...")
+            print(f"    ⚠️ Groq: {e} — جاري تجربة Gemini...")
+            time.sleep(3)
 
-    # ── Gemini كـ fallback
+    # Gemini كـ fallback
     if GEMINI_API_KEY:
         try:
-            response = requests.post(
+            r = requests.post(
                 f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
                 json={"contents": [{"parts": [{"text": prompt}]}]},
                 timeout=15,
             )
-            response.raise_for_status()
-            text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+            r.raise_for_status()
+            text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
             text = text.strip().replace("```json", "").replace("```", "").strip()
             result = json.loads(text)
             important = result.get("important", False)
@@ -260,17 +305,21 @@ def ask_ai(title: str, content: str, sent_today: list) -> tuple:
             time.sleep(4)
             return important, summary
         except Exception as e:
-            print(f"    ⚠️ Gemini error: {e}")
+            print(f"    ⚠️ Gemini: {e}")
 
     return False, ""
 
+
+# ══════════════════════════════════════════════
+# RSS Feed Builder
+# ══════════════════════════════════════════════
 
 def build_rss_feed(articles: list) -> str:
     rss = ET.Element("rss", version="2.0")
     channel = ET.SubElement(rss, "channel")
     ET.SubElement(channel, "title").text = "Bayern Filtered Feed - AI Powered"
     ET.SubElement(channel, "link").text = "https://news.google.com"
-    ET.SubElement(channel, "description").text = "FC Bayern - Keywords + Gemini AI"
+    ET.SubElement(channel, "description").text = "FC Bayern - Keywords + AI"
     ET.SubElement(channel, "lastBuildDate").text = datetime.now(timezone.utc).strftime(
         "%a, %d %b %Y %H:%M:%S +0000"
     )
@@ -284,11 +333,15 @@ def build_rss_feed(articles: list) -> str:
     return ET.tostring(rss, encoding="unicode", xml_declaration=True)
 
 
-def process_feed(feed_config: dict, seen_links: set, sent_today: list) -> tuple:
+# ══════════════════════════════════════════════
+# Main Processing
+# ══════════════════════════════════════════════
+
+def process_feed(feed_config: dict, seen_links: set, sent_today: list, cache: dict) -> tuple:
     feed_url = feed_config["url"]
     keywords = feed_config["keywords"]
 
-    print(f"\n🔍 {feed_url[50:90]}...")
+    print(f"\n🔍 {feed_url[50:95]}...")
     feed = feedparser.parse(feed_url)
 
     if not feed.entries:
@@ -309,63 +362,89 @@ def process_feed(feed_config: dict, seen_links: set, sent_today: list) -> tuple:
             continue
         seen_links.add(link)
 
+        # ── تحقق من الـ cache أولاً
+        if link in cache:
+            cached = cache[link]
+            if cached["result"] == "matched":
+                print(f"  [{i+1}] 💾 cache hit (مطابق): {title[:60]}...")
+                matched.append({
+                    "title": title,
+                    "link": cached.get("real_url", link),
+                    "summary": rss_summary,
+                    "published": entry.get("published", ""),
+                })
+            elif cached["result"] in ("no_match", "failed"):
+                print(f"  [{i+1}] 💾 cache hit (تخطي): {title[:60]}...")
+            elif cached["result"] == "paywall":
+                print(f"  [{i+1}] 💾 cache hit (paywall): {title[:60]}...")
+                matched.append({
+                    "title": title,
+                    "link": cached.get("real_url", link),
+                    "summary": rss_summary,
+                    "published": entry.get("published", ""),
+                })
+            continue
+
         print(f"  [{i+1}] {title[:70]}...")
 
-        # ── الخطوة 1: تحقق من العنوان والوصف
+        # ── الخطوة 1: تحقق من العنوان والوصف (بدون فتح الرابط)
         quick_match, kw = matches(f"{title} {rss_summary}", keywords)
         if quick_match:
-            print(f"    ✅ كلمة مفتاح في العنوان: '{kw}'")
+            print(f"    ✅ كلمة في العنوان: '{kw}'")
             real_url = decode_google_news_url(link)
+            cache_set(cache, link, "matched", real_url)
             matched.append({
                 "title": title, "link": real_url,
                 "summary": rss_summary, "published": entry.get("published", ""),
             })
             new_summaries.append(title[:60])
-            time.sleep(1)
+            time.sleep(0.5)
             continue
 
-        # ── الخطوة 2: فك الرابط ثم افتح المقال
+        # ── الخطوة 2: فك الرابط واقرأ المقال
         real_url = decode_google_news_url(link)
         article_text, status = fetch_article(real_url)
 
-        # Paywall → أرسل مباشرة
         if status == "paywall":
-            print(f"    🔒 Paywall → يُرسل مباشرة")
+            cache_set(cache, link, "paywall", real_url)
             matched.append({
                 "title": title, "link": real_url,
                 "summary": rss_summary, "published": entry.get("published", ""),
             })
             new_summaries.append(title[:60])
-            time.sleep(1)
+            time.sleep(0.5)
             continue
 
-        # فشل → تخطي
         if status == "failed" or not article_text:
-            print(f"    ⚠️ فشل القراءة — تخطي")
-            time.sleep(1)
+            cache_set(cache, link, "failed", real_url)
+            time.sleep(0.5)
             continue
 
         # ── الخطوة 3: تحقق من الكلمات في المحتوى
         content_match, kw = matches(article_text, keywords)
         if content_match:
             print(f"    ✅ كلمة في المحتوى: '{kw}'")
+            cache_set(cache, link, "matched", real_url)
             matched.append({
                 "title": title, "link": real_url,
                 "summary": rss_summary, "published": entry.get("published", ""),
             })
             new_summaries.append(title[:60])
-            time.sleep(1)
+            time.sleep(0.5)
             continue
 
-        # ── الخطوة 4: Gemini يقرر
-        print(f"    🤖 لا كلمة — Gemini يقيّم...")
+        # ── الخطوة 4: AI يقرر
+        print(f"    🤖 لا كلمة — AI يقيّم...")
         important, summary = ask_ai(title, article_text, sent_today + new_summaries)
         if important:
+            cache_set(cache, link, "matched", real_url)
             matched.append({
                 "title": title, "link": real_url,
                 "summary": rss_summary, "published": entry.get("published", ""),
             })
             new_summaries.append(summary or title[:60])
+        else:
+            cache_set(cache, link, "no_match", real_url)
 
         time.sleep(1)
 
@@ -374,8 +453,11 @@ def process_feed(feed_config: dict, seen_links: set, sent_today: list) -> tuple:
 
 def main():
     print(f"📡 عدد الـ Feeds: {len(RSS_FEEDS)}")
-    print(f"🤖 Groq: {'مفعّل ✅' if GROQ_API_KEY else 'غير مفعّل ❌'} | Gemini fallback: {'✅' if GEMINI_API_KEY else '❌'}")
-    print(f"🔀 Proxy: {'مفعّل ✅' if PROXY_URL else 'غير مفعّل ❌'}")
+    print(f"🤖 Groq: {'✅' if GROQ_API_KEY else '❌'} | Gemini: {'✅' if GEMINI_API_KEY else '❌'}")
+    print(f"🔀 Proxy: {'✅' if PROXY_URL else '❌'}")
+
+    cache = load_cache()
+    print(f"💾 Cache: {len(cache)} رابط محفوظ")
 
     sent_today = load_sent_today()
     print(f"📋 مقالات اليوم السابقة: {len(sent_today)}")
@@ -385,7 +467,7 @@ def main():
     seen_links = set()
 
     for feed_config in RSS_FEEDS:
-        matched, new_summaries = process_feed(feed_config, seen_links, sent_today + all_new_summaries)
+        matched, new_summaries = process_feed(feed_config, seen_links, sent_today + all_new_summaries, cache)
         all_matched.extend(matched)
         all_new_summaries.extend(new_summaries)
 
@@ -395,6 +477,7 @@ def main():
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write(xml_content)
 
+    save_cache(cache)
     save_sent_today(sent_today + all_new_summaries)
 
     if all_matched:
