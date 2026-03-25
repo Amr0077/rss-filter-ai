@@ -115,6 +115,7 @@ OUTPUT_FILE = "filtered_feed.xml"
 SENT_TODAY_FILE = "sent_today.json"
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 PROXY_URL = os.environ.get("PROXY_URL", "")
 
 # ============================================================
@@ -189,15 +190,14 @@ def matches(text: str, keywords: list) -> tuple:
     return False, ""
 
 
-def ask_gemini(title: str, content: str, sent_today: list) -> tuple:
-    if not GEMINI_API_KEY:
-        return False, ""
-    try:
-        sent_context = ""
-        if sent_today:
-            sent_context = f"المقالات المرسلة اليوم:\n" + "\n".join(f"- {s}" for s in sent_today[-10:])
+def ask_ai(title: str, content: str, sent_today: list) -> tuple:
+    """يسأل Groq أولاً، وإذا فشل يجرب Gemini كـ fallback"""
 
-        prompt = f"""أنت محلل أخبار متخصص في نادي بايرن ميونخ.
+    sent_context = ""
+    if sent_today:
+        sent_context = "المقالات المرسلة اليوم:\n" + "\n".join(f"- {s}" for s in sent_today[-10:])
+
+    prompt = f"""أنت محلل أخبار متخصص في نادي بايرن ميونخ.
 
 {sent_context}
 
@@ -214,24 +214,55 @@ def ask_gemini(title: str, content: str, sent_today: list) -> tuple:
 أجب بـ JSON فقط بدون أي نص إضافي:
 {{"important": true/false, "reason": "سبب قصير", "summary": "ملخص 10 كلمات"}}"""
 
-        response = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
-            json={"contents": [{"parts": [{"text": prompt}]}]},
-            timeout=15,
-        )
-        response.raise_for_status()
-        text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
-        text = text.strip().replace("```json", "").replace("```", "").strip()
-        result = json.loads(text)
-        important = result.get("important", False)
-        reason = result.get("reason", "")
-        summary = result.get("summary", title[:50])
-        print(f"    🤖 {'✅ مهم' if important else '❌ غير مهم'} — {reason}")
-        time.sleep(4)  # لتجنب 429
-        return important, summary
-    except Exception as e:
-        print(f"    ⚠️ Gemini error: {e}")
-        return False, ""
+    # ── Groq أولاً
+    if GROQ_API_KEY:
+        try:
+            response = requests.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
+                json={
+                    "model": "llama-3.3-70b-versatile",
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": 0.1,
+                    "max_tokens": 150,
+                },
+                timeout=15,
+            )
+            response.raise_for_status()
+            text = response.json()["choices"][0]["message"]["content"]
+            text = text.strip().replace("```json", "").replace("```", "").strip()
+            result = json.loads(text)
+            important = result.get("important", False)
+            reason = result.get("reason", "")
+            summary = result.get("summary", title[:50])
+            print(f"    🤖 Groq: {'✅ مهم' if important else '❌ غير مهم'} — {reason}")
+            time.sleep(2)
+            return important, summary
+        except Exception as e:
+            print(f"    ⚠️ Groq error: {e} — جاري تجربة Gemini...")
+
+    # ── Gemini كـ fallback
+    if GEMINI_API_KEY:
+        try:
+            response = requests.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
+                json={"contents": [{"parts": [{"text": prompt}]}]},
+                timeout=15,
+            )
+            response.raise_for_status()
+            text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+            text = text.strip().replace("```json", "").replace("```", "").strip()
+            result = json.loads(text)
+            important = result.get("important", False)
+            reason = result.get("reason", "")
+            summary = result.get("summary", title[:50])
+            print(f"    🤖 Gemini: {'✅ مهم' if important else '❌ غير مهم'} — {reason}")
+            time.sleep(4)
+            return important, summary
+        except Exception as e:
+            print(f"    ⚠️ Gemini error: {e}")
+
+    return False, ""
 
 
 def build_rss_feed(articles: list) -> str:
@@ -328,7 +359,7 @@ def process_feed(feed_config: dict, seen_links: set, sent_today: list) -> tuple:
 
         # ── الخطوة 4: Gemini يقرر
         print(f"    🤖 لا كلمة — Gemini يقيّم...")
-        important, summary = ask_gemini(title, article_text, sent_today + new_summaries)
+        important, summary = ask_ai(title, article_text, sent_today + new_summaries)
         if important:
             matched.append({
                 "title": title, "link": real_url,
@@ -343,7 +374,7 @@ def process_feed(feed_config: dict, seen_links: set, sent_today: list) -> tuple:
 
 def main():
     print(f"📡 عدد الـ Feeds: {len(RSS_FEEDS)}")
-    print(f"🤖 Gemini: {'مفعّل ✅' if GEMINI_API_KEY else 'غير مفعّل ❌'}")
+    print(f"🤖 Groq: {'مفعّل ✅' if GROQ_API_KEY else 'غير مفعّل ❌'} | Gemini fallback: {'✅' if GEMINI_API_KEY else '❌'}")
     print(f"🔀 Proxy: {'مفعّل ✅' if PROXY_URL else 'غير مفعّل ❌'}")
 
     sent_today = load_sent_today()
