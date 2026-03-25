@@ -21,11 +21,12 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install feedparser requests beautifulsoup4
+        run: pip install feedparser requests beautifulsoup4 googlenewsdecoder
 
       - name: Run filter script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PROXY_URL: ${{ secrets.PROXY_URL }}
         run: python filter_rss.py
 
       - name: Commit and push updated feed
