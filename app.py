@@ -554,6 +554,15 @@ def serve_feed():
     with state["lock"]:
         xml = state["feed_xml"]
     if not xml:
+        # إذا الـ feed فارغ، شغّل الفلترة مباشرة
+        print("⚡ طلب feed والـ cache فارغ — تشغيل فوري...")
+        try:
+            run_filter()
+        except Exception as e:
+            print(f"❌ {e}")
+        with state["lock"]:
+            xml = state["feed_xml"]
+    if not xml:
         return Response("Feed is loading, try again in a minute.", status=503)
     return Response(xml, mimetype="application/rss+xml; charset=utf-8")
 
