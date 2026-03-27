@@ -107,9 +107,20 @@ def load_cache():
         except:
             pass
 
+    # حمّل آخر feed محفوظ فوراً
+    result = github_get("filtered_feed.xml")
+    if result:
+        with state["lock"]:
+            state["feed_xml"] = result["content"]
+        print(f"📡 Feed محمّل من GitHub")
+
 
 def save_cache():
     github_save("cache.json", json.dumps(state["cache"], ensure_ascii=False))
+
+
+def save_feed(xml: str):
+    github_save("filtered_feed.xml", xml)
 
 
 # ══════════════════════════════════════════════
@@ -255,6 +266,7 @@ def run_filter():
 
         print(f"📊 {len(all_matched)} مقال مطابق")
         save_cache()
+        save_feed(xml)
 
     finally:
         state["running"] = False
